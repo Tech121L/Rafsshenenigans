@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secondary School Canteen Dashboard</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh; overflow: hidden; color: white;
+            display: flex; justify-content: center; align-items: center;
+        }
+        .container { width: 95%; height: 95%; background: rgba(255,255,255,0.1); border-radius: 20px; backdrop-filter: blur(10px); padding: 40px; position: relative; }
+        .header { text-align: center; font-size: 4vw; margin-bottom: 5vh; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); }
+        .content { font-size: 3vw; line-height: 1.5; text-align: center; }
+        .card { background: rgba(255,255,255,0.2); border-radius: 15px; padding: 30px; margin: 20px 0; backdrop-filter: blur(5px); }
+        .quiz-btn, .nav-btn { background: #4CAF50; color: white; border: none; padding: 20px 40px; font-size: 3vw; border-radius: 50px; cursor: pointer; transition: all 0.3s; margin: 10px; min-height: 80px; }
+        .quiz-btn:hover, .nav-btn:hover { transform: scale(1.05); background: #45a049; }
+        .quiz-container { display: none; }
+        .quiz-question { font-size: 4vw; margin: 20px 0; }
+        .quiz-options button { display: block; width: 90%; margin: 15px auto; }
+        .score { font-size: 5vw; color: #FFD700; font-weight: bold; }
+        .nav-buttons { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .slide { animation: fadeIn 1s; }
+    </style>
+</head>
+<body>
+    <div class="container" id="dashboard">
+        <div class="header" id="header">📱 School Chromebook Hub</div>
+        <div class="content" id="content">
+            <!-- Screen 1: Loan Reminder -->
+            <div class="slide" id="screen1">
+                <div class="card">
+                    <h2>🔑 Remember: Your Chromebook is LOANED</h2>
+                    <p>• School property – return it when you leave Year 11!<br>
+                    • All usage MONITORED (in/out of school)<br>
+                    • Use the Battery saver feature <br>
+                    • Charge daily – plug in during lunch! ⚡</p>
+                </div>
+            </div>
+
+            <!-- Screen 2: E-Waste Awareness -->
+            <div class="slide" id="screen2" style="display:none;">
+                <div class="card">
+                    <h2>♻️ Don't Trash It – Recycle It!</h2>
+                    <p>• 1 Chromebook = plastic for 100 water bottles<br>
+                    • Return old devices to IT for proper recycling<br>
+                    • E-waste pollutes oceans & harms wildlife<br>
+                    • Our school recycles 200+ devices yearly!</p>
+                    <button class="quiz-btn" onclick="startQuiz('ewaste')">Quiz: E-Waste Hero? 🦸</button>
+                </div>
+            </div>
+
+            <!-- Screen 3: Chromebook Tips -->
+            <div class="slide" id="screen3" style="display:none;">
+                <div class="card">
+                    <h2>💡 Top Chromebook Tips</h2>
+                    <p>• Search + L = Lock screen<br>
+                    • Search + V = Clipboard 😎<br>
+                    • Ctrl + Shift + T = Reopen closed tab 📂<br><br>
+                    • Bookmark learning sites (next screen!)</p>
+                </div>
+            </div>
+
+            <!-- Screen 4: Learning Websites -->
+            <div class="slide" id="screen4" style="display:none;">
+                <div class="card">
+                    <h2>🌐 Fun Learning Sites</h2>
+                    <p>• BBC Bitesize (GCSE revision)<br>
+                    • Seneca Learning (free quizzes)<br>
+                    • Oak Academy (video lessons)<br>
+                    • Sparx Learning (your homework hub)</p>
+                    <button class="quiz-btn" onclick="startQuiz('chrome')">Chromebook Challenge! 🧠</button>
+                </div>
+            </div>
+
+            <!-- Quiz Screens -->
+            <div id="quiz-container" class="quiz-container slide">
+                <div class="quiz-question" id="quiz-question"></div>
+                <div id="quiz-options"></div>
+                <div id="quiz-score" class="score" style="display:none;"></div>
+                <button class="quiz-btn" onclick="nextScreen()" style="margin-top:20px;">Next Topic ➡️</button>
+            </div>
+        </div>
+        <div class="nav-buttons">
+            <button class="nav-btn" onclick="prevScreen()">⬅️ Previous</button>
+            <button class="nav-btn" onclick="nextScreen()">Next ➡️</button>
+        </div>
+    </div>
+
+    <script>
+        const screens = ['screen1', 'screen2', 'screen3', 'screen4'];
+        let currentScreen = 0;
+        let quizActive = false;
+        let currentQuiz = {};
+        let quizIndex = 0;
+
+        // Quizzes data
+        const quizzes = {
+            ewaste: [
+                { q: "What should you do with old Chromebooks?", o: ["Bin it", "Return to IT", "Sell it", "Keep forever"], a: 1 },
+                { q: "Recycling 1 Chromebook saves plastic for?", o: ["10 bottles", "100 bottles", "1 bag", "A phone"], a: 1 }
+            ],
+            chrome: [
+                { q: "Chromebooks are:", o: ["Yours forever", "School loan", "Free gift", "Rent"], a: 1 },
+                { q: "All usage is:", o: ["Private", "Monitored", "Unlimited", "Anonymous"], a: 1 },
+                { q: "Lock screen shortcut?", o: ["Ctrl+L", "Ctrl+Shift+Q x2", "Alt+F4", "Win+R"], a: 1 }
+            ]
+        };
+
+        function showScreen(index) {
+            screens.forEach((s, i) => document.getElementById(s).style.display = i === index ? 'block' : 'none');
+            document.getElementById('header').textContent = ['📱 Loan Rules', '♻️ E-Waste', '💡 Tips', '🌐 Learning'][index];
+            currentScreen = index;
+        }
+
+        function nextScreen() {
+            if (quizActive) { quizActive = false; document.getElementById('quiz-container').style.display = 'none'; }
+            showScreen((currentScreen + 1) % 4);
+        }
+
+        function prevScreen() { showScreen((currentScreen + 3) % 4); }
+
+        function startQuiz(type) {
+            currentQuiz = quizzes[type];
+            quizIndex = 0;
+            quizActive = true;
+            screens.forEach(s => document.getElementById(s).style.display = 'none');
+            document.getElementById('quiz-container').style.display = 'block';
+            showQuizQuestion();
+        }
+
+        function showQuizQuestion() {
+            const q = currentQuiz[quizIndex];
+            document.getElementById('quiz-question').textContent = q.q;
+            const opts = document.getElementById('quiz-options');
+            opts.innerHTML = '';
+            q.o.forEach((opt, i) => {
+                const btn = document.createElement('button');
+                btn.className = 'quiz-btn';
+                btn.textContent = opt;
+                btn.onclick = () => checkAnswer(i === q.a ? 'win' : 'lose');
+                opts.appendChild(btn);
+            });
+        }
+
+        function checkAnswer(result) {
+            const scoreEl = document.getElementById('quiz-score');
+            scoreEl.textContent = result === 'win' ? '✅ Correct! Great job!' : '❌ Keep learning!';
+            scoreEl.style.display = 'block';
+        }
+
+        // Auto-advance
+        setInterval(() => {
+            if (!quizActive) nextScreen();
+        }, 12000);
+
+        // Init
+        showScreen(0);
+    </script>
+</body>
+</html>
