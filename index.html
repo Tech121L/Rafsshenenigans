@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Secondary School Canteen Dashboard</title>
+    <title>School Chromebook Hub</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { 
@@ -12,117 +12,222 @@
             height: 100vh; overflow: hidden; color: white;
             display: flex; justify-content: center; align-items: center;
         }
-        .container { width: 95%; height: 95%; background: rgba(255,255,255,0.1); border-radius: 20px; backdrop-filter: blur(10px); padding: 40px; position: relative; }
-        .header { text-align: center; font-size: 4vw; margin-bottom: 5vh; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); }
-        .content { font-size: 3vw; line-height: 1.5; text-align: center; }
-        .card { background: rgba(255,255,255,0.2); border-radius: 15px; padding: 30px; margin: 20px 0; backdrop-filter: blur(5px); }
-        .quiz-btn, .nav-btn { background: #4CAF50; color: white; border: none; padding: 20px 40px; font-size: 3vw; border-radius: 50px; cursor: pointer; transition: all 0.3s; margin: 10px; min-height: 80px; }
-        .quiz-btn:hover, .nav-btn:hover { transform: scale(1.05); background: #45a049; }
-        .quiz-container { display: none; }
-        .quiz-question { font-size: 4vw; margin: 20px 0; }
-        .quiz-options button { display: block; width: 90%; margin: 15px auto; }
-        .score { font-size: 5vw; color: #FFD700; font-weight: bold; }
-        .nav-buttons { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        .slide { animation: fadeIn 1s; }
+        .container { 
+            width: 90%; height: 90%; 
+            background: rgba(255,255,255,0.1); 
+            border-radius: 20px; 
+            backdrop-filter: blur(10px); 
+            padding: 40px; 
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .header { 
+            text-align: center; 
+            font-size: 4.5vw; 
+            font-weight: bold;
+            margin-bottom: 4vh; 
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5); 
+        }
+        .card { 
+            background: rgba(255,255,255,0.2); 
+            border-radius: 15px; 
+            padding: 30px 40px; 
+            width: 100%;
+            backdrop-filter: blur(5px); 
+            text-align: center;
+            font-size: 2.8vw;
+            line-height: 1.8;
+        }
+        .card h2 {
+            font-size: 3.5vw;
+            margin-bottom: 20px;
+        }
+        .quiz-btn { 
+            background: #4CAF50; 
+            color: white; 
+            border: none; 
+            padding: 18px 36px; 
+            font-size: 2.5vw; 
+            border-radius: 50px; 
+            cursor: pointer; 
+            transition: all 0.3s; 
+            margin: 10px; 
+        }
+        .quiz-btn:hover { transform: scale(1.05); background: #45a049; }
+        .quiz-btn:active { transform: scale(0.97); }
+
+        /* ── NAV ARROWS ── */
+        .nav-btn {
+            position: fixed;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255,255,255,0.15);
+            border: 2px solid rgba(255,255,255,0.4);
+            color: white;
+            font-size: 1.8vw;
+            width: 3.5vw;
+            height: 3.5vw;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(5px);
+            z-index: 100;
+        }
+        .nav-btn:hover { background: rgba(255,255,255,0.35); transform: translateY(-50%) scale(1.1); }
+        .nav-btn:active { transform: translateY(-50%) scale(0.95); }
+        .nav-prev { left: 1vw; }
+        .nav-next { right: 1vw; }
+
+        /* ── PROGRESS DOTS ── */
+        .dots {
+            position: fixed;
+            bottom: 2vh;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+        }
+        .dot {
+            width: 10px; height: 10px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.35);
+            transition: background 0.3s;
+        }
+        .dot.active { background: white; }
+
+        .quiz-container { display: none; width: 100%; text-align: center; }
+        .quiz-question { font-size: 3.5vw; margin: 20px 0; font-weight: bold; }
+        .quiz-options { display: flex; flex-direction: column; align-items: center; }
+        .quiz-options button { width: 75%; }
+        .score { font-size: 4vw; color: #FFD700; font-weight: bold; margin-top: 20px; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .slide, .quiz-container { animation: fadeIn 0.6s ease; }
     </style>
 </head>
 <body>
-    <div class="container" id="dashboard">
+
+    <!-- NAV ARROWS -->
+    <button class="nav-btn nav-prev" onclick="prevScreen()">&#8249;</button>
+    <button class="nav-btn nav-next" onclick="nextScreen()">&#8250;</button>
+
+    <!-- PROGRESS DOTS -->
+    <div class="dots">
+        <div class="dot active" id="dot0"></div>
+        <div class="dot" id="dot1"></div>
+        <div class="dot" id="dot2"></div>
+        <div class="dot" id="dot3"></div>
+    </div>
+
+    <div class="container">
         <div class="header" id="header">📱 School Chromebook Hub</div>
-        <div class="content" id="content">
-            <!-- Screen 1: Loan Reminder -->
-            <div class="slide" id="screen1">
-                <div class="card">
-                    <h2>🔑 Remember: Your Chromebook is LOANED</h2>
-                    <p>• School property – return it when you leave Year 11!<br>
-                    • All usage MONITORED (in/out of school)<br>
-                    • Use the Battery saver feature <br>
-                    • Charge daily – plug in during lunch! ⚡</p>
-                </div>
-            </div>
 
-            <!-- Screen 2: E-Waste Awareness -->
-            <div class="slide" id="screen2" style="display:none;">
-                <div class="card">
-                    <h2>♻️ Don't Trash It – Recycle It!</h2>
-                    <p>• 1 Chromebook = plastic for 100 water bottles<br>
-                    • Return old devices to IT for proper recycling<br>
-                    • E-waste pollutes oceans & harms wildlife<br>
-                    • Our school recycles 200+ devices yearly!</p>
-                    <button class="quiz-btn" onclick="startQuiz('ewaste')">Quiz: E-Waste Hero? 🦸</button>
-                </div>
-            </div>
-
-            <!-- Screen 3: Chromebook Tips -->
-            <div class="slide" id="screen3" style="display:none;">
-                <div class="card">
-                    <h2>💡 Top Chromebook Tips</h2>
-                    <p>• Search + L = Lock screen<br>
-                    • Search + V = Clipboard 😎<br>
-                    • Ctrl + Shift + T = Reopen closed tab 📂<br><br>
-                    • Bookmark learning sites (next screen!)</p>
-                </div>
-            </div>
-
-            <!-- Screen 4: Learning Websites -->
-            <div class="slide" id="screen4" style="display:none;">
-                <div class="card">
-                    <h2>🌐 Fun Learning Sites</h2>
-                    <p>• BBC Bitesize (GCSE revision)<br>
-                    • Seneca Learning (free quizzes)<br>
-                    • Oak Academy (video lessons)<br>
-                    • Sparx Learning (your homework hub)</p>
-                    <button class="quiz-btn" onclick="startQuiz('chrome')">Chromebook Challenge! 🧠</button>
-                </div>
-            </div>
-
-            <!-- Quiz Screens -->
-            <div id="quiz-container" class="quiz-container slide">
-                <div class="quiz-question" id="quiz-question"></div>
-                <div id="quiz-options"></div>
-                <div id="quiz-score" class="score" style="display:none;"></div>
-                <button class="quiz-btn" onclick="nextScreen()" style="margin-top:20px;">Next Topic ➡️</button>
+        <!-- Screen 1: Loan Rules -->
+        <div class="slide" id="screen1">
+            <div class="card">
+                <h2>🔑 Your Chromebook is a SCHOOL LOAN</h2>
+                <p>• Must be returned when you leave Year 11 📦<br>
+                • All usage is MONITORED in and out of school 👀<br>
+                • Internet is filtered everywhere via Securly 🔒<br>
+                • Charge it every night — plug in at lunch! ⚡</p>
             </div>
         </div>
-        <div class="nav-buttons">
-            <button class="nav-btn" onclick="prevScreen()">⬅️ Previous</button>
-            <button class="nav-btn" onclick="nextScreen()">Next ➡️</button>
+
+        <!-- Screen 2: E-Waste -->
+        <div class="slide" id="screen2" style="display:none;">
+            <div class="card">
+                <h2>♻️ Recycle, Don't Trash!</h2>
+                <p>• Recycling 1 Chromebook saves plastic for 100 water bottles 🌊<br>
+                • E-waste harms oceans, wildlife & communities 🐢<br>
+                • Return old/broken devices to IT — never bin them!<br>
+                • Our school recycles 200+ devices every year 🌍</p>
+                <br>
+                <button class="quiz-btn" onclick="startQuiz('ewaste')">🦸 E-Waste Hero Quiz!</button>
+            </div>
+        </div>
+
+        <!-- Screen 3: Tips -->
+        <div class="slide" id="screen3" style="display:none;">
+            <div class="card">
+                <h2>💡 Pro Chromebook Shortcuts</h2>
+                <p>• <strong>Search + L </strong> — Lock your screen 🔒<br>
+                • <strong>Search + V</strong> — Clipboard 😎<br>
+                • <strong>Ctrl + Shift + T</strong> — Reopen closed tab 📂<br>
+                • <strong>Ctrl + N </strong> —Open new Tabk!</p>
+            </div>
+        </div>
+
+        <!-- Screen 4: Learning Sites -->
+        <div class="slide" id="screen4" style="display:none;">
+            <div class="card">
+                <h2>🌐 Top Study Sites</h2>
+                <p>• 📚 <strong>BBC Bitesize</strong> — GCSE revision made easy<br>
+                • 🧠 <strong>Seneca Learning</strong> — Free interactive quizzes<br>
+                • 🎬 <strong>Oak National Academy</strong> — Video lessons<br>
+                • 📖 <strong>Sparx Learning </strong> — Your homework hub</p>
+                <br>
+                <button class="quiz-btn" onclick="startQuiz('chrome')">🧠 Chromebook Challenge!</button>
+            </div>
+        </div>
+
+        <!-- Quiz -->
+        <div id="quiz-container" class="quiz-container">
+            <div class="quiz-question" id="quiz-question"></div>
+            <div class="quiz-options" id="quiz-options"></div>
+            <div class="score" id="quiz-score" style="display:none;"></div>
+            <br>
+            <button class="quiz-btn" onclick="nextScreen()" style="margin-top:10px;">Next Topic ➡️</button>
         </div>
     </div>
 
     <script>
-        const screens = ['screen1', 'screen2', 'screen3', 'screen4'];
-        let currentScreen = 0;
+        const screens = ['screen1','screen2','screen3','screen4'];
+        const titles = ['🔑 Loan Rules','♻️ E-Waste','💡 Tips','🌐 Study Sites'];
+        let current = 0;
         let quizActive = false;
-        let currentQuiz = {};
-        let quizIndex = 0;
 
-        // Quizzes data
         const quizzes = {
             ewaste: [
-                { q: "What should you do with old Chromebooks?", o: ["Bin it", "Return to IT", "Sell it", "Keep forever"], a: 1 },
-                { q: "Recycling 1 Chromebook saves plastic for?", o: ["10 bottles", "100 bottles", "1 bag", "A phone"], a: 1 }
+                { q: "What should you do with an old Chromebook?", o: ["Bin it 🗑️", "Return to IT ✅", "Sell it 💰", "Keep it 🏠"], a: 1 },
+                { q: "Recycling 1 Chromebook saves plastic for how many bottles?", o: ["10 bottles", "50 bottles", "100 bottles ✅", "5 bottles"], a: 2 }
             ],
             chrome: [
-                { q: "Chromebooks are:", o: ["Yours forever", "School loan", "Free gift", "Rent"], a: 1 },
-                { q: "All usage is:", o: ["Private", "Monitored", "Unlimited", "Anonymous"], a: 1 },
-                { q: "Lock screen shortcut?", o: ["Ctrl+L", "Ctrl+Shift+Q x2", "Alt+F4", "Win+R"], a: 1 }
+                { q: "Your Chromebook is...?", o: ["Yours forever 🎁", "A school loan ✅", "Free to sell", "A gift from Google"], a: 1 },
+                { q: "Is your usage monitored?", o: ["Only in school", "Yes, always ✅", "Never", "Only on Wi-Fi"], a: 1 },
+                { q: "Ctrl + Shift + T does what?", o: ["Closes tab", "Reopens closed tab ✅", "Opens settings", "Locks screen"], a: 1 }
             ]
         };
 
+        let currentQuiz = [], quizIndex = 0;
+
+        function updateDots(index) {
+            document.querySelectorAll('.dot').forEach((d, i) => d.classList.toggle('active', i === index));
+        }
+
         function showScreen(index) {
             screens.forEach((s, i) => document.getElementById(s).style.display = i === index ? 'block' : 'none');
-            document.getElementById('header').textContent = ['📱 Loan Rules', '♻️ E-Waste', '💡 Tips', '🌐 Learning'][index];
-            currentScreen = index;
+            document.getElementById('quiz-container').style.display = 'none';
+            document.getElementById('header').textContent = titles[index];
+            quizActive = false;
+            current = index;
+            updateDots(index);
         }
 
         function nextScreen() {
-            if (quizActive) { quizActive = false; document.getElementById('quiz-container').style.display = 'none'; }
-            showScreen((currentScreen + 1) % 4);
+            quizActive = false;
+            showScreen((current + 1) % 4);
         }
 
-        function prevScreen() { showScreen((currentScreen + 3) % 4); }
+        function prevScreen() {
+            quizActive = false;
+            showScreen((current + 3) % 4);
+        }
 
         function startQuiz(type) {
             currentQuiz = quizzes[type];
@@ -130,35 +235,41 @@
             quizActive = true;
             screens.forEach(s => document.getElementById(s).style.display = 'none');
             document.getElementById('quiz-container').style.display = 'block';
+            document.getElementById('quiz-score').style.display = 'none';
             showQuizQuestion();
         }
 
         function showQuizQuestion() {
             const q = currentQuiz[quizIndex];
-            document.getElementById('quiz-question').textContent = q.q;
+            document.getElementById('quiz-question').textContent = `Q${quizIndex+1}: ${q.q}`;
             const opts = document.getElementById('quiz-options');
             opts.innerHTML = '';
+            document.getElementById('quiz-score').style.display = 'none';
             q.o.forEach((opt, i) => {
                 const btn = document.createElement('button');
                 btn.className = 'quiz-btn';
+                btn.style.width = '75%';
                 btn.textContent = opt;
-                btn.onclick = () => checkAnswer(i === q.a ? 'win' : 'lose');
+                btn.onclick = () => checkAnswer(i === q.a, btn, opts);
                 opts.appendChild(btn);
             });
         }
 
-        function checkAnswer(result) {
+        function checkAnswer(correct, btn, opts) {
+            [...opts.querySelectorAll('button')].forEach(b => b.disabled = true);
+            btn.style.background = correct ? '#4CAF50' : '#e53935';
             const scoreEl = document.getElementById('quiz-score');
-            scoreEl.textContent = result === 'win' ? '✅ Correct! Great job!' : '❌ Keep learning!';
+            scoreEl.textContent = correct ? '✅ Correct! Legend! 🎉' : '❌ Not quite — keep learning!';
             scoreEl.style.display = 'block';
+            quizIndex++;
+            if (quizIndex < currentQuiz.length) {
+                setTimeout(showQuizQuestion, 2000);
+            }
         }
 
-        // Auto-advance
-        setInterval(() => {
-            if (!quizActive) nextScreen();
-        }, 12000);
+        // Auto-advance every 15s if no interaction
+        let timer = setInterval(() => { if (!quizActive) nextScreen(); }, 15000);
 
-        // Init
         showScreen(0);
     </script>
 </body>
